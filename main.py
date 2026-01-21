@@ -20,15 +20,11 @@ entrada = st.text_input(
     placeholder="Ex: Nayeon, Gatos, Tarot"
 )
 
-def gerar_nomes(prompt: str):
+def gerar_nomes(prompt: str) -> str:
     url = (
         "https://generativelanguage.googleapis.com/v1/models/"
-        "gemini-1.5-flash:generateContent"
+        "gemini-1.0-pro:generateContent"
     )
-
-    headers = {
-        "Content-Type": "application/json"
-    }
 
     payload = {
         "contents": [
@@ -42,7 +38,7 @@ def gerar_nomes(prompt: str):
 
     response = requests.post(
         f"{url}?key={API_KEY}",
-        headers=headers,
+        headers={"Content-Type": "application/json"},
         data=json.dumps(payload),
         timeout=30
     )
