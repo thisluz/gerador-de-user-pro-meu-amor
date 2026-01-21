@@ -2,11 +2,13 @@ import streamlit as st
 import requests
 import json
 
+# Configuração da página
 st.set_page_config(
     page_title="Criando users para o meu amor",
     page_icon="💖"
 )
 
+# Verificação da chave
 if "GEMINI_API_KEY" not in st.secrets:
     st.error("Chave GEMINI_API_KEY não encontrada nos Secrets.")
     st.stop()
@@ -34,8 +36,7 @@ def listar_modelos_validos():
 
     modelos = []
     for m in data.get("models", []):
-        methods = m.get("supportedGenerationMethods", [])
-        if "generateContent" in methods:
+        if "generateContent" in m.get("supportedGenerationMethods", []):
             modelos.append(m["name"])
 
     if not modelos:
@@ -43,7 +44,7 @@ def listar_modelos_validos():
 
     return modelos
 
-def gerar_nomes(prompt: str, modelo: str):
+def gerar_nomes(prompt: str, modelo: str) -> str:
     url = f"{BASE_URL}/{modelo}:generateContent"
 
     payload = {
@@ -77,28 +78,6 @@ if st.button("Gerar nomes agora"):
                 st.caption(f"Modelo utilizado: {modelo_escolhido}")
 
                 prompt = (
-                    "Gere 10 nomes de usuário curtos para redes sociais "
+                    "Gere 10 nomes de usuário para redes sociais "
                     f"baseados em: {entrada}. "
-                    "Apenas os nomes, um por linha, sem @ e sem explicações."
-                )
-
-                texto = gerar_nomes(prompt, modelo_escolhido)
-
-                st.success("Aqui estão as ideias para você:")
-
-                for nome in texto.splitlines():
-                    user_limpo = (
-                        nome.replace("*", "")
-                        .replace("-", "")
-                        .replace(".", "")
-                        .strip()
-                        .lower()
-                        .replace(" ", "")
-                    )
-                    if user_limpo:
-                        st.code(f"@{user_limpo}")
-
-            except Exception as e:
-                st.error(f"Erro ao gerar nomes: {e}")
-    else:
-        st.warning("Escreva os temas primeiro, amor!")
+                    "Cada nome deve ter entre 6 e 12 caracteres, "
