@@ -1,5 +1,6 @@
 import streamlit as st
-from google import genai
+import requests
+import json
 
 st.set_page_config(
     page_title="Criando users para o meu amor",
@@ -10,7 +11,7 @@ if "GEMINI_API_KEY" not in st.secrets:
     st.error("Chave GEMINI_API_KEY não encontrada nos Secrets.")
     st.stop()
 
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+API_KEY = st.secrets["GEMINI_API_KEY"]
 
 st.title("💖 Criando users para o meu amor")
 
@@ -18,6 +19,39 @@ entrada = st.text_input(
     "Escolha os temas",
     placeholder="Ex: Nayeon, Gatos, Tarot"
 )
+
+def gerar_nomes(prompt: str):
+    url = (
+        "https://generativelanguage.googleapis.com/v1/models/"
+        "gemini-1.5-flash:generateContent"
+    )
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
+    }
+
+    response = requests.post(
+        f"{url}?key={API_KEY}",
+        headers=headers,
+        data=json.dumps(payload),
+        timeout=30
+    )
+
+    if response.status_code != 200:
+        raise Exception(response.text)
+
+    data = response.json()
+    return data["candidates"][0]["content"]["parts"][0]["text"]
 
 if st.button("Gerar nomes agora"):
     if entrada:
@@ -29,14 +63,11 @@ if st.button("Gerar nomes agora"):
                     "Apenas os nomes, um por linha, sem @ e sem explicações."
                 )
 
-                response = client.models.generate_content(
-                    model="models/gemini-1.5-pro",
-                    contents=prompt
-                )
+                texto = gerar_nomes(prompt)
 
                 st.success("Aqui estão as ideias para você:")
 
-                for nome in response.text.splitlines():
+                for nome in texto.splitlines():
                     user_limpo = (
                         nome.replace("*", "")
                         .replace("-", "")
