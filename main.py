@@ -1,31 +1,45 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Isso aqui faz o código ler a chave que você colocou nos Secrets do Streamlit
+# Configuração da página - O que aparece na aba do navegador
+st.set_page_config(page_title="Criando users para o meu amor", page_icon="💖")
+
+# Conexão com a chave que você salvou nos Secrets
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception as e:
-    st.error("Erro ao carregar a chave da IA. Verifique se salvou nos Secrets!")
+except:
+    st.error("Erro ao carregar a chave nos Secrets.")
 
-st.title("🤖 Gerador de Usernames com IA")
+# Visual do site - Personalizado para vocês
+st.title("💖 Criando users para o meu amor")
+st.write("Aqui estão seus users, gatinha!")
 
-entrada = st.text_input("Digite os temas (ex: Nayeon, Gatos, Tarot):")
+# Entrada de temas
+entrada = st.text_input("Escolha seus temas", placeholder="Ex: Nayeon, Gatos, Tarot")
 
-if st.button("Gerar com Inteligência Artificial"):
+if st.button("Gerar nomes agora"):
     if entrada:
-        with st.spinner('O Gemini está criando nomes incríveis...'):
+        with st.spinner('Criando sugestões...'):
             try:
-                # O "comando" para a IA
-                prompt = f"Gere 8 nomes de usuário criativos e curtos para Twitter sobre: {entrada}. Apenas os nomes, um por linha, sem @."
+                # Prompt focado apenas nos temas, sem forçar palavras extras
+                prompt = f"""Gere 10 sugestões de nomes de usuário curtos e criativos para redes sociais 
+                baseados estritamente nos temas: {entrada}. 
+                Regras: 
+                - Use apenas as palavras dos temas ou variações diretas.
+                - Use letras minúsculas.
+                - Pode usar underscores ou números.
+                - Retorne apenas os nomes, um por linha, sem o símbolo @."""
                 
                 response = model.generate_content(prompt)
                 
-                st.success("Sugestões da IA:")
+                st.success("Aqui estão as ideias para você:")
                 for nome in response.text.strip().split('\n'):
                     if nome:
-                        st.code(f"@{nome.strip().lower().replace(' ', '')}")
+                        # Limpa espaços e garante o formato de user
+                        user_limpo = nome.strip().lower().replace(" ", "")
+                        st.code(f"@{user_limpo}")
             except Exception as e:
-                st.error("A IA deu um erro. Tente novamente!")
+                st.error("Houve um probleminha ao gerar. Tente de novo!")
     else:
-        st.warning("Escreva algo primeiro!")
+        st.warning("Escreva os temas primeiro, amor!")
