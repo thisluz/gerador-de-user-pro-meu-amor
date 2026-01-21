@@ -8,7 +8,7 @@ st.set_page_config(
     page_icon="💖"
 )
 
-# Verificação da chave
+# Verificação da chave da API
 if "GEMINI_API_KEY" not in st.secrets:
     st.error("Chave GEMINI_API_KEY não encontrada nos Secrets.")
     st.stop()
@@ -33,8 +33,8 @@ def listar_modelos_validos():
         raise Exception(f"Erro ao listar modelos: {resp.text}")
 
     data = resp.json()
-
     modelos = []
+
     for m in data.get("models", []):
         if "generateContent" in m.get("supportedGenerationMethods", []):
             modelos.append(m["name"])
@@ -50,7 +50,9 @@ def gerar_nomes(prompt: str, modelo: str) -> str:
     payload = {
         "contents": [
             {
-                "parts": [{"text": prompt}]
+                "parts": [
+                    {"text": prompt}
+                ]
             }
         ]
     }
@@ -66,18 +68,4 @@ def gerar_nomes(prompt: str, modelo: str) -> str:
         raise Exception(response.text)
 
     data = response.json()
-    return data["candidates"][0]["content"]["parts"][0]["text"]
-
-if st.button("Gerar nomes agora"):
-    if entrada:
-        with st.spinner("Criando sugestões..."):
-            try:
-                modelos = listar_modelos_validos()
-                modelo_escolhido = modelos[0]
-
-                st.caption(f"Modelo utilizado: {modelo_escolhido}")
-
-                prompt = (
-                    "Gere 10 nomes de usuário para redes sociais "
-                    f"baseados em: {entrada}. "
-                    "Cada nome deve ter entre 6 e 12 caracteres, "
+    return data["candidates"][0]["content"]["parts"]
