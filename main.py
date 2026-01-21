@@ -1,12 +1,18 @@
 import streamlit as st
 from google import genai
 
-st.set_page_config(page_title="Criando users para o meu amor", page_icon="💖")
+# Configuração da página
+st.set_page_config(
+    page_title="Criando users para o meu amor",
+    page_icon="💖"
+)
 
+# Verificação da chave da API
 if "GEMINI_API_KEY" not in st.secrets:
-    st.error("Chave não encontrada nos Secrets!")
+    st.error("Chave GEMINI_API_KEY não encontrada nos Secrets.")
     st.stop()
 
+# Inicialização do cliente Gemini (API v1)
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 st.title("💖 Criando users para o meu amor")
@@ -21,13 +27,13 @@ if st.button("Gerar nomes agora"):
         with st.spinner("Criando sugestões..."):
             try:
                 prompt = (
-                    f"Gere 10 nomes de usuário curtos para redes sociais "
+                    "Gere 10 nomes de usuário curtos para redes sociais "
                     f"baseados em: {entrada}. "
-                    f"Apenas os nomes, um por linha, sem @ e sem explicações."
+                    "Apenas os nomes, um por linha, sem @ e sem explicações."
                 )
 
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="models/gemini-1.5-flash",
                     contents=prompt
                 )
 
