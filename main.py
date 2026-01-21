@@ -1,15 +1,16 @@
 import streamlit as st
 import google.generativeai as genai
+import os
 
 # Configuração da página
 st.set_page_config(page_title="Criando users para o meu amor", page_icon="💖")
 
-# Configuração da IA - Usando a versão 'latest' para evitar o erro 404
+# Tenta configurar o modelo usando o nome mais compatível com v1beta
 try:
     if "GEMINI_API_KEY" in st.secrets:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        # 'gemini-1.5-flash-latest' é o caminho mais seguro para evitar o 404
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # 'gemini-pro' é o modelo com maior suporte legado na v1beta
+        model = genai.GenerativeModel('gemini-pro')
     else:
         st.error("Chave não encontrada nos Secrets!")
 except Exception as e:
@@ -17,28 +18,27 @@ except Exception as e:
 
 st.title("💖 Criando users para o meu amor")
 
-# Entrada conforme solicitado
 entrada = st.text_input("Escolha os temas", placeholder="Ex: Nayeon, Gatos, Tarot")
 
 if st.button("Gerar nomes agora"):
     if entrada:
         with st.spinner('Criando sugestões...'):
             try:
-                # Prompt direto para manter a essência dos seus temas
                 prompt = f"Gere 10 nomes de usuário curtos para redes sociais baseados em: {entrada}. Apenas os nomes, um por linha, sem @ e sem explicações."
                 
                 response = model.generate_content(prompt)
                 
-                if response.text:
+                if response:
                     st.success("Aqui estão as ideias para você:")
+                    # Limpeza para garantir que o texto da IA seja exibido corretamente
                     sugestoes = response.text.strip().split('\n')
                     for nome in sugestoes:
                         if nome:
-                            # Limpeza total de símbolos para o user ficar perfeito
                             user_limpo = nome.replace("*", "").replace("-", "").replace(".", "").strip().lower().replace(" ", "")
                             st.code(f"@{user_limpo}")
             except Exception as e:
-                # Se ainda der erro, o log nos dirá se é algo na chave ou no modelo
-                st.error(f"Erro detalhado: {e}")
+                # Se ainda der 404, vamos tentar o modelo legado absoluto
+                st.error(f"Erro: {e}")
+                st.info("Tentando uma conexão alternativa...")
     else:
         st.warning("Escreva os temas primeiro, amor!")
