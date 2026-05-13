@@ -3,11 +3,11 @@ import requests
 import json
 
 st.set_page_config(
-    page_title="Criando users para o meu amor",
-    page_icon="💖"
+    page_title="Gerador de Users",
+    page_icon="🤖"
 )
 
-st.title("💖 Criando users para o meu amor")
+st.title("🤖 Gerador de Users")
 
 entrada = st.text_input(
     "Escolha os temas",
@@ -101,4 +101,4 @@ if gerar:
             except Exception as e:
                 st.error(f"Erro ao gerar nomes: {e}")
     else:
-        st.warning("Escreva os temas primeiro, amor!")
+        st.warning("Escreva os temas primeiro!")
